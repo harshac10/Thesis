@@ -1,62 +1,62 @@
-#Computing delay bound, given the probability, for single and multiple flows
+from math import exp,inf,log
 import numpy as np
-import math
-theta = np.linspace(0.1,10,10**6)
-c = 0.75 #per flow rate
-eps = pow(10,-3) #probablity
+
+def Qc_1(theta: float, c: float)-> float:
+    return exp(theta*(1-c))/theta
+
+def Qc_n(theta: float,c: float, flows: int)-> float:
+    return (exp(theta*(1-c))/theta)**flows
+
+def sigma_1(epsilon: float,theta: float, c:float)->float:
+    if Qc_1(theta,c) >= 1:
+        return inf
+    theta_range.append(theta)
+    return log(1/(epsilon* (1-Qc_1(theta,c))))/theta
+
+def sigma(epsilon: float,theta: float, c:float)-> float:
+    if Qc_n(theta,c,num_of_flows) >= 1:
+        return inf
+    theta_range.append(theta)
+    return log(1 / (epsilon * (1 - Qc_n(theta,c,num_of_flows)))) / theta
+
 sig = []
 theta_range = []
+theta = np.linspace(0.1,10,10**6,False)
+per_rate = 0.75
+eps = 10**-3
 while(True):
     try:
-        Num_flows = int(input("Enter the number of flows in integer: "))
+        num_of_flows = int(input('Enter the number of flows:'))
         break
     except ValueError:
-        print(f"Sorry the number is not an integer... Try again")
+        print(f"The number must be an integer... Try again")
 
 #Calculate delay for single flow
 for i in theta:
-    Qc_1 = (math.exp(i*(1-c))/i)
-    if Qc_1 < 1:
-        sig.append(math.log(1/(eps * (1-Qc_1)))/i)
-        theta_range.append(i)
+     sig.append(sigma_1(epsilon=eps,theta=i,c=per_rate))
 
-delay_1 = min(sig)/c
+delay_1 = min(sig)/per_rate
 
-if int(Num_flows) > 1:
+#Calculate delay for multiplexing
+if num_of_flows > 1:
     delay = 0
-    while delay <= delay_1 and c > 0:
+    for i in theta:
+        sig.append(sigma(epsilon=eps, theta=i, c=per_rate))
+    delay = min(sig) / per_rate
+    print(f"The delay is: {delay} for c={per_rate}")
+    while (delay <= delay_1 and per_rate > 0):
         sig.clear()
         theta_range.clear()
-        for j in theta:
-            Qc = (math.exp(j * (1 - c)) / j) ** int(Num_flows)
-            if Qc < 1:
-                sig.append(math.log(1 / (eps * (1 - Qc))) / j)
-                theta_range.append(j)
-        delay = min(sig)/c
-        c = c - 0.005
-    print(f"The range of theta is [{min(theta_range)} , {max(theta_range)}]")
-    print(f"The delay bound is: {delay} for c = {c}")
+        per_rate -= 0.005
+        for i in theta:
+            sig.append(sigma(epsilon=eps,theta=i,c=per_rate))
+        delay = min(sig)/per_rate
+        print(f"The delay is: {delay} for c={per_rate}")
+        if (delay < delay_1):
+            delay_bound = delay
+    per_rate += 0.005
+    print(f"The final delay bound is: {delay_bound} for c = {per_rate}")
+    print(f"The theta range if [{min(theta_range)},{max(theta_range)}]")
 else:
-    print(f"The range of theta is [{min(theta_range)} , {max(theta_range)}]")
-    print(f"The delay bound is: {delay_1} for c = {c}")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    print(f"The theta range if [{min(theta_range)},{max(theta_range)}]")
+    print(f"The delay is: {delay_1} for c={per_rate}")
