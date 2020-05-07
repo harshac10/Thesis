@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$USER_HOME$/PycharmProjects/Harsha/.idea/Harsha.iml" filepath="$USER_HOME$/PycharmProjects/Harsha/.idea/Harsha.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../PycharmProjects/Thesis/.idea/Thesis.iml" filepath="$PROJECT_DIR$/../../PycharmProjects/Thesis/.idea/Thesis.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Thesis.iml" filepath="$PROJECT_DIR$/.idea/Thesis.iml" />
     </modules>
   </component>
 </project>
