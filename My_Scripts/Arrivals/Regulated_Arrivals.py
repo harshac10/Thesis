@@ -2,6 +2,7 @@
 
 from abc import abstractmethod
 from Arrivals.Arrival_Distribution import ArrivalDistribution
+from UD_Exceptions import ParameterOutOfBounds
 from math import exp, log
 
 
@@ -32,7 +33,7 @@ class LeakyBucket(RegulatedArrivals):
     def sigma(self, theta: float) -> float:
 
         if theta <= 0:
-            raise ValueError(f"Theta value should be greater than 0")
+            raise ParameterOutOfBounds(f"Theta value should be greater than 0")
 
         return self.n * log(0.5 * (exp(theta * self.sigma_single) + exp(-theta * self.sigma_single))) / theta
 

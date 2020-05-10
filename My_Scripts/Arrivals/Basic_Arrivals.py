@@ -1,6 +1,7 @@
 """ Standard Arrival distributions """
 
 from Arrivals.Arrival_Distribution import ArrivalDistribution
+from UD_Exceptions import ParameterOutOfBounds
 from math import exp, log
 
 
@@ -16,7 +17,7 @@ class Bernoulli(ArrivalDistribution):
     def rho(self, theta: float) -> float:
 
         if theta <= 0:
-            raise ValueError(f"Theta value should be greater than 0")
+            raise ParameterOutOfBounds(f"Theta value should be greater than 0")
 
         return (self.n / theta) * log(1 - self.p_val + (self.p_val * exp(theta)))
 
@@ -39,9 +40,9 @@ class Poisson(ArrivalDistribution):
     def rho(self, theta: float) -> float:
 
         if theta <= 0:
-            raise ValueError(f"Theta value should be greater than 0")
+            raise ParameterOutOfBounds(f"Theta value should be greater than 0")
 
-        return (self.n * theta) * self.lamda * (exp(theta) - 1)
+        return (self.n / theta) * self.lamda * (exp(theta) - 1)
 
     def discrete(self) -> bool:
         return True
@@ -61,7 +62,7 @@ class Uniform(ArrivalDistribution):
     def rho(self, theta: float) -> float:
 
         if theta <= 0:
-            raise ValueError(f"Theta value should be greater than 0")
+            raise ParameterOutOfBounds(f"Theta value should be greater than 0")
 
         return self.n - (self.n * log(theta) / theta)
 

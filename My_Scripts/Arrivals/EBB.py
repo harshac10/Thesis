@@ -1,6 +1,7 @@
 """ Exponentially Bounded Burst """
 
 from Arrivals.Arrival_Distribution import ArrivalDistribution
+from UD_Exceptions import ParameterOutOfBounds
 from math import log
 
 
@@ -15,7 +16,7 @@ class ExpBoundBurst(ArrivalDistribution):
     def sigma(self, theta: float) -> float:
 
         if theta <= 0:
-            raise ValueError(f"Theta value should be greater than 0")
+            raise ParameterOutOfBounds(f"Theta value should be greater than 0")
 
         elif self.m_fac < 0 or self.decay < 0 or self.rho_val < 0:
             raise ValueError(f"M_factor, Decay and Rho values should be positive")

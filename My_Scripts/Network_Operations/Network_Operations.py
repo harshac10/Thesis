@@ -2,7 +2,8 @@
 
 from Arrivals.Arrival import Arrival
 from Servers.Server import Server
-from Operations_Performances.Additional_Functions import sig_rho, get_q, stability_check, get_pn
+from Performance_Bounds.Additional_Functions import sig_rho, get_q, stability_check, get_pn
+from UD_Exceptions import ParameterOutOfBounds
 from math import exp, log
 from typing import List
 
@@ -17,15 +18,13 @@ class Deconvolve(Arrival):
 
     def sigma(self, theta: float) -> float:
 
-        if stability_check(self.arrival, self.server, theta):
-            sig_sum, rho_diff = sig_rho(self.arrival, self.server, theta, self.independent, self.p)
+        stability_check(self.arrival, self.server, theta, self.independent, self.p)
+        sig_sum, rho_diff = sig_rho(self.arrival, self.server, theta, self.independent, self.p)
 
-            if self.arrival.discrete():
-                return sig_sum - (log(1 - exp(theta * rho_diff)) / theta)
+        if self.arrival.discrete():
+            return sig_sum - (log(1 - exp(theta * rho_diff)) / theta)
 
-            return self.arrival.rho(self.p*theta) + sig_sum - (log(1 - exp(theta * rho_diff)) / theta)
-
-        raise ValueError(f"Stability condition is violated")
+        return self.arrival.rho(self.p*theta) + sig_sum - (log(1 - exp(theta * rho_diff)) / theta)
 
     def rho(self, theta: float) -> float:
         return self.arrival.rho(self.p*theta)
@@ -41,14 +40,19 @@ class Convolve(Server):
         self.server2 = server2
         self.independent = independent
         self.p = p
-        self.q = get_q(p)
+
+        if independent:
+            self.q = 1.0
+
+        else:
+            self.q = get_q(p)
 
     def sigma(self, theta: float) -> float:
 
         ser1_sigma = self.server1.sigma(self.p*theta)
         ser2_sigma = self.server2.sigma(self.q*theta)
-        ser1_rho = self.rho(self.p*theta)
-        ser2_rho = self.rho(self.q*theta)
+        ser1_rho = self.server1.rho(self.p*theta)
+        ser2_rho = self.server2.rho(self.q*theta)
 
         sigma_sum = ser1_sigma + ser2_sigma
         rho_diff = ser1_rho - ser2_rho
@@ -63,8 +67,8 @@ class Convolve(Server):
 
     def rho(self, theta: float) -> float:
 
-        ser1_rho = self.rho(self.p*theta)
-        ser2_rho = self.rho(self.q*theta)
+        ser1_rho = self.server1.rho(self.p*theta)
+        ser2_rho = self.server2.rho(self.q*theta)
 
         if ser1_rho > ser2_rho:
             return ser2_rho
@@ -79,17 +83,17 @@ class Leftovers(Server):
 
     def __init__(self, server: Server, cross_arrival: Arrival, independent=True, p=1.0):
         self.server = server
-        self.arrival = cross_arrival
+        self.cross_arrival = cross_arrival
         self.independent = independent
         self.p = p
 
     def sigma(self, theta: float) -> float:
-        sig_sum, rho_diff = sig_rho(self.arrival, self.server, theta, self.independent, self.p)
+        sig_sum, rho_diff = sig_rho(self.cross_arrival, self.server, theta, self.independent, self.p)
 
         return sig_sum
 
     def rho(self, theta: float) -> float:
-        sig_sum, rho_diff = sig_rho(self.arrival, self.server, theta, self.independent, self.p)
+        sig_sum, rho_diff = sig_rho(self.cross_arrival, self.server, theta, self.independent, self.p)
 
         return -rho_diff
 
@@ -102,7 +106,7 @@ class AggregateList(Arrival):
         self.independent = independent
 
         if len(self.p_list) != len(self.arrivals) - 1:
-            raise ValueError(f"Entries in the p_list should match num of arrivals-1")
+            raise ParameterOutOfBounds(f"Entries in the p_list should match num of arrivals-1")
 
         self.p_n = get_pn(self.p_list)
 
@@ -134,14 +138,14 @@ class AggregateList(Arrival):
             rho_i = self.arrivals[i].rho(self.p_list[i] * theta)
 
             if rho_i < 0:
-                raise ValueError(f"Rhos must be >= 0")
+                raise ParameterOutOfBounds(f"Rhos must be >= 0")
 
             result += rho_i
 
         rho_n = self.arrivals[-1].rho(self.p_n * theta)
 
         if rho_n < 0:
-            raise ValueError(f"Rhos must be >= 0")
+            raise ParameterOutOfBounds(f"Rhos must be >= 0")
 
         result += rho_n
 
@@ -151,7 +155,7 @@ class AggregateList(Arrival):
         return self.arrivals[0].discrete()
 
 
-class AggregateHomogenous(Arrival):
+class AggregateHomogeneous(Arrival):
 
     def __init__(self, arrival: Arrival, n: int, independent=True):
         self.arrival = arrival

@@ -1,6 +1,7 @@
 """ Arrivals based on Queuing theory """
 
 from Arrivals.Arrival_Distribution import ArrivalDistribution
+from UD_Exceptions import ParameterOutOfBounds
 from math import exp, log
 
 
@@ -16,18 +17,18 @@ class DM1(ArrivalDistribution):
     def rho(self, theta: float) -> float:
 
         if theta <= 0:
-            raise ValueError(f"Theta value should be greater than 0")
+            raise ParameterOutOfBounds(f"Theta value should be greater than 0")
 
         elif self.lamda <= theta:
-            raise ValueError(f"Lambda value should be greater than theta")
+            raise ParameterOutOfBounds(f"Lambda value should be greater than theta")
 
-        return self.n * log(self.lamda / (self.lamda - theta)) / theta
+        return (self.n / theta) * log(self.lamda / (self.lamda - theta))
 
     def discrete(self) -> bool:
         return True
 
     def mean_rate(self, theta: float) -> float:
-        return 1 / self.lamda
+        return self.n / self.lamda
 
 
 class MD1(ArrivalDistribution):
@@ -43,7 +44,7 @@ class MD1(ArrivalDistribution):
     def rho(self, theta: float) -> float:
 
         if theta <= 0:
-            raise ValueError(f"Theta value should be greater than 0")
+            raise ParameterOutOfBounds(f"Theta value should be greater than 0")
 
         return self.n * self.lamda / theta * (exp(theta / self.mue) - 1)
 
@@ -67,10 +68,10 @@ class MM1(ArrivalDistribution):
     def rho(self, theta: float) -> float:
 
         if theta <= 0:
-            raise ValueError(f"Theta value should be greater than 0")
+            raise ParameterOutOfBounds(f"Theta value should be greater than 0")
 
         elif self.mue <= theta:
-            raise ValueError(f"Mue value should be greater than theta")
+            raise ParameterOutOfBounds(f"Mue value should be greater than theta")
 
         return self.n * self.lamda / (self.mue - theta)
 

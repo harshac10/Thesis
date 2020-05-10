@@ -1,10 +1,12 @@
 """ Abstract Arrival process for various distribution with Sigma-Rho envelopes"""
 
-from abc import abstractmethod, ABC
+from abc import abstractmethod
+from Arrivals.Arrival import Arrival
+from UD_Exceptions import ParameterOutOfBounds
 from math import exp
 
 
-class ArrivalDistribution(ABC):
+class ArrivalDistribution(Arrival):
 
     @abstractmethod
     def sigma(self, theta: float) -> float:
@@ -28,7 +30,7 @@ class ArrivalDistribution(ABC):
     def transient_bound(self, theta: float, delta_time: int) -> float:
 
         if theta <= 0:
-            raise ValueError(f"Theta value should be greater than 0")
+            raise ParameterOutOfBounds(f"Theta value should be greater than 0")
 
         elif delta_time < 0:
             raise ValueError(f"Time values should always be positive")
