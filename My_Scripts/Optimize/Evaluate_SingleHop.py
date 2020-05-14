@@ -1,8 +1,8 @@
 from Arrivals.Arrival import Arrival
 from Servers.Server import Server
-from Performance_Bounds import Performance_Bounds
-from Performance_Bounds.Perform_Parameter import PerformParam, PerformEnum
-from Network_Operations.Network_Operations import AggregateHomogeneous
+from Operations import Performance_Bounds
+from Operations.Perform_Parameter import PerformParam, PerformEnum
+from Operations.Network_Operations import AggregateHomogeneous
 
 
 def evaluate_single_hop(foi: Arrival, s_e2e: Server, theta: float, perform_param: PerformParam,

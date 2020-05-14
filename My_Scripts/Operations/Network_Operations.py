@@ -2,7 +2,7 @@
 
 from Arrivals.Arrival import Arrival
 from Servers.Server import Server
-from Performance_Bounds.Additional_Functions import sig_rho, get_q, stability_check, get_pn
+from Operations.Additional_Functions import sig_rho, get_q, stability_check, get_pn
 from UD_Exceptions import ParameterOutOfBounds
 from math import exp, log
 from typing import List

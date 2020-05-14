@@ -48,7 +48,7 @@ class Poisson(ArrivalDistribution):
         return True
 
     def mean_rate(self, theta: float) -> float:
-        return self.lamda
+        return self.n * self.lamda
 
 
 class Uniform(ArrivalDistribution):
