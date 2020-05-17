@@ -7,10 +7,10 @@ from math import log
 
 class ExpBoundBurst(ArrivalDistribution):
 
-    def __init__(self, m_factor: float, decay: float, rho_val: float, n=1):
+    def __init__(self, m_factor: float, decay: float, rho_single: float, n=1):
         self.m_fac = m_factor
         self.decay = decay
-        self.rho_val = rho_val
+        self.rho_val = rho_single
         self.n = n
 
     def sigma(self, theta: float) -> float:
@@ -26,6 +26,9 @@ class ExpBoundBurst(ArrivalDistribution):
 
         a = theta / self.decay
         log_part = log(self.m_fac ** a / (1 - a))
+
+        if log_part < 0:
+            raise ParameterOutOfBounds("Rhos must be >= 0")
 
         return log_part / theta * self.n
 

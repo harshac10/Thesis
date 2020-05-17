@@ -8,11 +8,11 @@ from math import exp, log
 
 class RegulatedArrivals(ArrivalDistribution):
 
-    def __init__(self, sigma_single: float, rho_single: float, n=1):
+    def __init__(self, sigma_single=0.0, rho_single=0.0, n=1):
         self.sigma_single = sigma_single
         self.rho_single = rho_single
         self.n = n
-        self.arr_rate = self.n * self.rho_single
+        self.arr_rate = n * rho_single
 
     @abstractmethod
     def sigma(self, theta: float) -> float:
@@ -25,10 +25,13 @@ class RegulatedArrivals(ArrivalDistribution):
         return True
 
     def mean_rate(self, theta: float) -> float:
-        return self.arr_rate
+        return self.rho(1.0)
 
 
 class LeakyBucket(RegulatedArrivals):
+
+    def __init__(self, sigma_single: float, rho_single: float, n=1):
+        super().__init__(sigma_single= sigma_single, rho_single= rho_single, n=n)
 
     def sigma(self, theta: float) -> float:
 
@@ -39,6 +42,10 @@ class LeakyBucket(RegulatedArrivals):
 
 
 class TokenBucket(RegulatedArrivals):
+
+    def __init__(self, sigma_single: float, rho_single: float, n=1):
+        super().__init__(sigma_single= sigma_single, rho_single= rho_single, n=n)
+        self.burst = self.n * self.sigma_single
 
     def sigma(self, theta: float) -> float:
         return self.n * self.sigma_single

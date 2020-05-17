@@ -40,7 +40,7 @@ class Optimize(object):
             return grid_result[0][0], grid_result[1]
 
         except FloatingPointError:
-            return inf
+            return inf, inf
 
     def nelder_mead(self, simplex: np.ndarray, sd_min = 10**-2):
 
@@ -52,7 +52,7 @@ class Optimize(object):
             return nm_result.x[0], nm_result.fun
 
         except FloatingPointError:
-            return inf
+            return inf, inf
 
     def basin_hopping(self, start_list: List[float]):
 
@@ -63,7 +63,7 @@ class Optimize(object):
             return bh_result.x[0], bh_result.fun
 
         except FloatingPointError:
-            return inf
+            return inf, inf
 
     def diff_evolution(self, bound_list: List[tuple]):
 
@@ -74,7 +74,7 @@ class Optimize(object):
             return de_result.x[0], de_result.fun
 
         except FloatingPointError:
-            return inf
+            return inf, inf
 
     def dual_annealing(self, bound_list: List[tuple]):
 
@@ -85,6 +85,6 @@ class Optimize(object):
             return da_result.x[0], da_result.fun
 
         except FloatingPointError:
-            return inf
+            return inf, inf
 
 

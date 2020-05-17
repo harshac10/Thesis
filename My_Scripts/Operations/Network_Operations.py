@@ -1,7 +1,9 @@
 """ Implementing network operations with Sigma-Rho calculus """
 
 from Arrivals.Arrival import Arrival
+from Arrivals.Regulated_Arrivals import TokenBucket
 from Servers.Server import Server
+from Servers.RateLatency_Server import RateLatencyServers
 from Operations.Additional_Functions import sig_rho, get_q, stability_check, get_pn
 from UD_Exceptions import ParameterOutOfBounds
 from math import exp, log
@@ -20,6 +22,9 @@ class Deconvolve(Arrival):
 
         stability_check(self.arrival, self.server, theta, self.independent, self.p)
         sig_sum, rho_diff = sig_rho(self.arrival, self.server, theta, self.independent, self.p)
+
+        if isinstance(self.arrival, TokenBucket) and isinstance(self.server, RateLatencyServers):
+            return self.arrival.burst + self.arrival.arr_rate * self.server.latency
 
         if self.arrival.discrete():
             return sig_sum - (log(1 - exp(theta * rho_diff)) / theta)
@@ -48,6 +53,9 @@ class Convolve(Server):
             self.q = get_q(p)
 
     def sigma(self, theta: float) -> float:
+
+        if isinstance(self.server1, RateLatencyServers) and isinstance(self.server2, RateLatencyServers):
+            return self.server1.latency + self.server2.latency
 
         ser1_sigma = self.server1.sigma(self.p*theta)
         ser2_sigma = self.server2.sigma(self.q*theta)
@@ -87,13 +95,30 @@ class Leftovers(Server):
         self.independent = independent
         self.p = p
 
+        if independent:
+            self.q = 1.0
+        else:
+            self.q = get_q(p)
+
     def sigma(self, theta: float) -> float:
+
         sig_sum, rho_diff = sig_rho(self.cross_arrival, self.server, theta, self.independent, self.p)
+
+        if isinstance(self.server, RateLatencyServers) and isinstance(self.cross_arrival, TokenBucket):
+            return (self.cross_arrival.sigma(theta) + self.server.rate * self.server.latency)\
+                   / (self.server.rate - self.cross_arrival.arr_rate)
 
         return sig_sum
 
     def rho(self, theta: float) -> float:
+
         sig_sum, rho_diff = sig_rho(self.cross_arrival, self.server, theta, self.independent, self.p)
+
+        if isinstance(self.server , RateLatencyServers) and isinstance(self.cross_arrival , TokenBucket):
+            return self.server.rate - self.cross_arrival.arr_rate
+
+        if self.server.rho(self.q*theta) < 0 or self.cross_arrival.rho(self.p*theta) < 0:
+            raise ParameterOutOfBounds(f"Rhos must be >= 0")
 
         return -rho_diff
 

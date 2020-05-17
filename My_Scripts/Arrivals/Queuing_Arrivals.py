@@ -20,7 +20,7 @@ class DM1(ArrivalDistribution):
             raise ParameterOutOfBounds(f"Theta value should be greater than 0")
 
         elif self.lamda <= theta:
-            raise ParameterOutOfBounds(f"Lambda value should be greater than theta")
+            raise ValueError(f"Lambda value should be greater than theta")
 
         return (self.n / theta) * log(self.lamda / (self.lamda - theta))
 
@@ -52,7 +52,7 @@ class MD1(ArrivalDistribution):
         return False
 
     def mean_rate(self, theta: float) -> float:
-        return self.lamda / self.mue
+        return self.n * self.lamda / self.mue
 
 
 class MM1(ArrivalDistribution):
@@ -79,4 +79,4 @@ class MM1(ArrivalDistribution):
         return False
 
     def mean_rate(self, theta: float) -> float:
-        return self.lamda / self.mue
+        return self.n * self.lamda / self.mue
